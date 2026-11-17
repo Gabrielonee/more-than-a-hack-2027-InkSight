@@ -4,8 +4,8 @@ Input usati: tracking automatico (ATD) e Smart Tagging del video tattico. Niente
 
 ## Pipeline
 1. `possession/data.py`: carica l'ATD in metri (cache in `solution/cache/`, mai committata).
-2. `possession/features.py`: distanza dalla palla per squadra, velocità palla, palla fuori campo, velocità collettiva dei giocatori.
-3. `possession/emissions.py`: evidenza per frame per H/A/D; Smart Tagging come prior debole (segno dei tag di squadra deciso in automatico).
+2. `possession/ball_position.py` + `possession/features.py`: nei buchi, stima geometrica della traiettoria da coordinate ai bordi e posizioni dei giocatori; `LONG BALL` evita lo snap sul giocatore. La confidenza resta distinta dalla visibilità originale e pesa l'evidenza H/A/D.
+3. `possession/emissions.py`: stima il possibile controllore per giocatore da prossimità, velocità relativa, persistenza e cambi di moto della palla; aggrega poi il punteggio per squadra. I passaggi in volo attenuano il controllo, mentre l'HMM richiede continuità prima di cambiare stato. Smart Tagging dà prior morbidi per fase; `SET PIECES` e `GOALS` forniscono ancore esplicite.
 4. `possession/decode.py`: HMM a durata minima (Viterbi) per tempo; i cambi di stato hanno un costo.
 5. `possession/gaps.py`: classificatore dei buchi della palla. Nei frame in cui la palla non è tracciata stima P(palla ferma) dal contesto (velocità dei giocatori, dove e come la palla è sparita e ricomparsa, durata del buco); il suo log-odds entra come evidenza per D con peso `k_gap`. Regressione logistica allenata solo sulle partite Metrica, salvata in `gap_model.json` (accanto a `params.json`); in inferenza serve solo numpy.
 6. `possession/deadball.py`: classificatore di palla ferma su TUTTI i frame (palla vista o no), con gli schemi di ripresa di Vidal-Codina et al. 2022: palla ferma sulla linea laterale, alla bandierina, sull'area piccola o al centro con le squadre nelle proprie metà; giocatori che rallentano e poi ripartono (finestre passate/future). Gradient boosting allenato solo su Metrica, salvato in `deadball_model.pkl` accanto a `params.json`; il suo log-odds entra come evidenza per D con peso `k_dead`. Lo Smart Tagging non è una feature (Metrica non lo ha): SET PIECES resta un prior separato. Su Metrica (leave-one-game-out, 100 configurazioni appaiate) porta lo spellF1 della partita peggiore da 0.374 a 0.413 e il macroF1 da ~0.70 a ~0.75.
@@ -29,7 +29,7 @@ python evaluation/validate_submission.py evaluation/results/<team_name>.csv
 ### Su Google Colab
 Ogni notebook gira in un runtime separato: quello che deve passare da uno all'altro sta su Drive, in `DRIVE_DIR` (default `MyDrive/mtah2027`):
 - `data/` (da caricare a mano), `cache/` (ATD parsato, dati Metrica, log della calibrazione), `params.json` e `deadball_model.pkl` (scritti da 02, letti da 03: stessa versione di scikit-learn).
-- La calibrazione (02) scrive ogni configurazione in `cache/calibration_v5.jsonl`: se il runtime cade, rieseguendo riparte da dove era.
+- La calibrazione (02) scrive ogni configurazione in `cache/calibration_v8.jsonl`: ogni estrazione di parametri confronta in modo appaiato i minimi di 10, 15 e 20 frame e riparte dal log se il runtime cade.
 - Il notebook 03 si ferma con un errore se `params.json` non c'è.
 - Colab clona la branch `team-solution` da GitHub: le modifiche al codice devono essere pushate.
 - I notebook 02 e 03 installano `solution/requirements.txt` all'avvio. Se pip cambia una libreria già caricata, il runtime si riavvia da solo una volta: basta rieseguire il notebook dall'inizio.

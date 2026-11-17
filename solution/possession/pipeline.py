@@ -53,6 +53,9 @@ def load_params(path=None, required=None):
     cfg["min_len"] = {emissions.H: int(d["min_pos"]), emissions.A: int(d["min_pos"]),
                       emissions.D: int(d["min_dead"])}  # same truncation as calibrate.make_cfg
     cfg["switch_cost"] = {k: float(d["switch"]) for k in cfg["switch_cost"]}
+    team_switch = float(d.get("switch_team", d["switch"]))
+    cfg["switch_cost"][(emissions.H, emissions.A)] = team_switch
+    cfg["switch_cost"][(emissions.A, emissions.H)] = team_switch
     return params, cfg
 
 
@@ -62,7 +65,8 @@ def run(params=None, decode_cfg=None, use_tagging=True, verbose=True, required=N
         params = p0 if params is None else params
         decode_cfg = c0 if decode_cfg is None else decode_cfg
     atd = data.load_atd()
-    f = features.compute(atd)
+    tags = data.load_smart_tagging() if use_tagging else []
+    f = features.compute(atd, tags=tags, blocks=data.graded_blocks())
     ll = emissions.tracking_scores(f, params)
     gap_model = gaps.load(gap_model_path()) if params.get("k_gap", 0) > 0 else None
     if params.get("k_gap", 0) > 0 and gap_model is None:
@@ -78,7 +82,6 @@ def run(params=None, decode_cfg=None, use_tagging=True, verbose=True, required=N
     ll = ll + emissions.dead_scores(dl, params)
     signs = None
     if use_tagging:
-        tags = data.load_smart_tagging()
         ll_tag, signs = emissions.tagging_scores(tags, f, atd["n_frames"], params)
         ll_sp, sp_info = setpieces.setpiece_scores(tags, f, atd["ball"], atd["n_frames"], params)
         ll = ll + ll_tag + ll_sp

@@ -1,11 +1,13 @@
-"""Per-frame features computed from the tracking only.
+"""Per-frame features computed from tracking and rule-based ball-position estimates.
 
-All distances in metres, speeds in m/s. NaN means "not observable on this frame".
+All distances in metres, speeds in m/s. Raw ball visibility remains separate from estimate
+confidence so downstream rules can distinguish observations from reconstructed positions.
 """
 import numpy as np
 import pandas as pd
 
 from .data import FPS, PITCH, HOME, AWAY
+from . import ball_position
 
 
 def runs(mask):
@@ -17,9 +19,15 @@ def runs(mask):
 
 def _central_speed(xy, h=2):
     """Speed from a centred difference over +-h frames; NaN where either end is missing."""
-    v = np.full(xy.shape[:-1], np.nan, np.float32)
+    velocity = _central_velocity(xy, h)
+    return np.sqrt((velocity ** 2).sum(-1))
+
+
+def _central_velocity(xy, h=2):
+    """Vector velocity from a centred difference over +-h frames."""
+    v = np.full(xy.shape, np.nan, np.float32)
     dxy = xy[2 * h:] - xy[:-2 * h]
-    v[h:-h] = np.sqrt((dxy ** 2).sum(-1)) * FPS / (2 * h)
+    v[h:-h] = dxy * FPS / (2 * h)
     return v
 
 
@@ -29,19 +37,54 @@ def rolling(x, window, how="mean", min_periods=1):
     return getattr(r, how)().to_numpy(np.float32)
 
 
-def compute(atd):
-    ball, players, team = atd["ball"], atd["players"], atd["team"]
+def compute(atd, tags=None, blocks=None):
+    observed_ball, players, team = atd["ball"], atd["players"], atd["team"]
     L, W = PITCH
     f = {}
-    present = ~np.isnan(ball[:, 0])
+    present = np.isfinite(observed_ball).all(axis=1)
+    period = atd.get("period")
+    predicted_ball, predicted_confidence = ball_position.predict(
+        observed_ball, players, tags=tags, blocks=blocks, period=period, fps=FPS)
+    ball = observed_ball.copy()
+    missing = ~present
+    use_prediction = missing & np.isfinite(predicted_ball).all(axis=1)
+    ball[use_prediction] = predicted_ball[use_prediction]
+    location_confidence = np.where(present, 1.0, predicted_confidence).astype(np.float32)
     f["ball_present"] = present
+    f["ball_position_confidence"] = location_confidence
+    f["ball_for_geometry"] = ball
+    f["team_of_track"] = team
+    long_ball = np.zeros(len(ball), bool)
+    for tag in tags or ():
+        if (tag.get("code") or "").strip().upper() == "LONG BALL":
+            a = max(0, int(tag.get("start_frame", 0)))
+            b = min(len(ball), int(tag.get("end_frame", a)))
+            if b > a:
+                long_ball[a:b] = True
+    f["long_ball"] = long_ball
 
     # ball speed, robust to single-frame jumps of the automatic tracker
     bs = _central_speed(ball)
     f["ball_speed"] = rolling(bs, 5, "median")
 
-    # nearest player of each team to the ball
+    # Distances and relative motion support a per-player control score downstream.
     d = np.sqrt(((players - ball[:, None, :]) ** 2).sum(-1))          # (N, 46)
+    player_v = _central_velocity(players)
+    ball_v = _central_velocity(ball)
+    relative_speed = np.sqrt(((player_v - ball_v[:, None, :]) ** 2).sum(-1))
+    nearby = np.where(np.isfinite(d), (d < 2.5).astype(np.float32), np.nan)
+    persistence = np.stack([rolling(nearby[:, j], FPS, "mean")
+                            for j in range(nearby.shape[1])], axis=1)
+    ball_accel = np.full(len(ball), np.nan, np.float32)
+    dv = ball_v[4:] - ball_v[:-4]
+    ball_accel[2:-2] = np.sqrt((dv ** 2).sum(-1)) * FPS / 4.0
+    ball_accel = rolling(ball_accel, 5, "median")
+    f["player_ball_distance"] = d
+    f["player_relative_speed"] = relative_speed
+    f["player_nearby_persistence"] = persistence
+    f["ball_acceleration"] = ball_accel
+
+    # Nearest distance by team remains useful to restart and gap features.
     with np.errstate(all="ignore"):
         f["d_home"] = np.where(np.isnan(d[:, team == HOME]).all(1), np.nan,
                                np.nanmin(np.where(np.isnan(d[:, team == HOME]), np.inf, d[:, team == HOME]), 1))

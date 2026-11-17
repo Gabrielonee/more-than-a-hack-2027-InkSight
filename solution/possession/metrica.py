@@ -75,7 +75,7 @@ def labels_from_events(game):
     kick), which sets the team again.
     """
     n, per = game["n_frames"], game["period"]
-    ev = game["events"].sort_values("Start Frame").reset_index(drop=True)
+    ev = game["events"].sort_values("Start Frame", kind="stable").reset_index(drop=True)
     lab = np.full(n, "X", dtype="<U1")
     for period in np.unique(per):
         e = ev[ev["Period"] == period]
@@ -160,7 +160,7 @@ SP_KEEP = {"Throw-in": 0.55, "Corner Kick": 0.9, "Goal Kick": 0.65, "Free Kick":
 
 
 def synthetic_tags(game, rng, fps=25, false_pos_per_half=2):
-    ev = game["events"].sort_values("Start Frame")
+    ev = game["events"].sort_values("Start Frame", kind="stable")
     n = game["n_frames"]
     goals = [int(r["Start Frame"]) - 1 for _, r in ev.iterrows()
              if r["Type"] == "SHOT" and "GOAL" in str(r["Subtype"]).upper()]

@@ -2,7 +2,8 @@
 
 Team submission for More Than A Hack 2027 (BAR-ATH). The method uses only the automatic tracking
 (ATD) and the Smart Tagging of the tactical video. It has no video model and no human labels on the
-provided game, and every parameter is calibrated on other games.
+provided game. Learned weights and HMM parameters are calibrated on other games; the ball-position
+imputer uses explicit, documented geometric rules.
 
 ## 1. Approach
 
@@ -18,8 +19,9 @@ The pipeline therefore has two layers:
 2. **A minimum-duration HMM** decoded with Viterbi, independently for each half
    (`possession/decode.py`). Each state H / A / D is expanded into a chain of `min_len`
    sub-states, so a state can only be left after it has lasted `min_len` frames: a 3-frame
-   possession is impossible by construction. Leaving a state costs a fixed log-penalty
-   (`switch`). Frames outside the two graded halves are written as X. Inside a half we never
+   possession is impossible by construction. Leaving a state costs a log-penalty (`switch`);
+   the H↔A team-change penalty (`switch_team`) is calibrated separately from transitions to D.
+   Frames outside the two graded halves are written as X. Inside a half we never
    abstain, because X on a graded frame is always a miss.
 
 We chose an explicit HMM over an end-to-end sequence model (e.g. the TCN of Borghesi et al. 2023)
@@ -31,19 +33,42 @@ calibrated directly on the ranking metric, is less exposed to overfitting and is
 
 Features from the tracking (`possession/features.py`, metres and m/s):
 
-- distance from the ball to the nearest player of each team;
+- per-player distance and relative speed to the ball, plus persistence of being within 2.5 m;
+- ball acceleration near each player as a small cue for a kick or reception;
+- team control scores: each player's proximity score is reduced by relative motion and increased
+  by persistent proximity and a nearby ball-motion impulse; the strongest candidate represents
+  the team's current controller;
 - ball speed (centred difference over ±2 frames, then a 5-frame median to absorb tracker jumps);
 - how far the ball is outside the pitch;
 - collective player speed (mean over visible players, 2 s rolling mean; values above 12 m/s
   are discarded as identity switches);
-- ball stillness over 1 s.
+- ball stillness over 1 s;
+- position confidence, kept separate from the raw `ball_present` flag.
+
+#### Rule-based ball-position estimate (`possession/ball_position.py`)
+
+The imputer preserves every observed ball coordinate. Inside a tracking gap bounded by two ball
+observations it interpolates a path, then gently pulls that path toward a nearby tracked player's
+position when the candidate is within 2.25 m. A `LONG BALL` Smart Tagging interval disables this
+player snap and reduces the controller score, so a pass in flight is not forced onto a player's
+location. One-sided gaps use capped constant-velocity extrapolation for at most 0.5 s. Estimates
+become less trusted as the gap grows; they receive a per-frame confidence that weights team
+evidence, and uncertain estimates cannot create out-of-play evidence. The HMM, dead-ball classifier
+and existing Smart Tagging anchors still decide the final state.
+
+This is an interpretable geometric rule, not a learned ball detector. It cannot reconstruct a long
+unobserved flight exactly; long gaps without nearby player support remain low-confidence. The
+calibration path applies the same imputer to the Metrica games after masking the ball, so its
+possession contribution can be measured without using labels from BAR-ATH.
 
 Evidence terms:
 
 - **Team control**, after Link & Hoernig (2017). Control decays exponentially beyond
   `control_radius` (scale `control_decay`) and is down-weighted when the ball moves faster than
   `flight_speed` (a ball in flight is controlled by nobody). The evidence is the difference
-  between home and away control, weight `k_team`, and is used only where the ball is tracked.
+  between home and away control, weight `k_team`; estimated positions are multiplied by their
+  confidence. A soft `controller_min_strength` gate tapers weak team margins when neither side has
+  a convincing controller, reducing switches caused by loose-ball frames.
 - **Dead ball**: the ball beyond the line by more than `outside_margin` (`k_outside`), slow
   collective player speed (a tanh around `slow_center`, `k_slow`), a still ball with slow
   players (`k_still`), and a constant prior against D (`d_bias`).
@@ -55,11 +80,12 @@ Evidence terms:
 These are not hand-coded rules; they follow from the evidence and the HMM:
 
 - **Loose balls and passes**: a ball in flight gives weak or no team evidence, so the decoder
-  keeps the current team until the evidence for the other team outweighs the `switch` penalty.
+  keeps the current team until evidence for the other team outweighs the `switch_team` penalty.
   A pass between team-mates therefore never ends a spell.
 - **Challenges and short contested phases**: a change of team only happens once the new team
-  has stayed in control for at least `min_pos` frames, so 50/50 duels shorter than that are
-  absorbed by the surrounding spell.
+  has stayed in control for at least `min_pos` frames. Calibration compares 10, 15 and 20 frames;
+  short duels can therefore be absorbed by the surrounding spell without forcing the same
+  minimum duration on stoppages.
 - **Restarts**: a stoppage is a D run of at least `min_dead` frames. The spell after it starts
   wherever the team evidence (and, for set pieces, the Smart Tagging) points once play resumes.
 
@@ -92,8 +118,13 @@ sees the gap context.
 
 - **Team tags**: a weak prior (`k_tag_team`) towards the team named by a phase. We decide
   algorithmically whether a code names the team in possession or the opponent. For each code we
-  measure agreement with the nearest-player team on frames where someone is clearly on the ball
-  (within 1.5 m). No ground truth is involved.
+  measure agreement with the current controller team on frames where the ball is observed and a
+  player is within 1.5 m. The prior is scaled by that agreement and fades over the first and last
+  0.48 s of the tagged interval. This keeps phase boundaries as soft evidence rather than treating
+  every frame as a guaranteed possession label. No ground truth is involved.
+- **Long balls**: the interval marks likely flight; controller evidence is scaled by
+  `long_ball_control_scale` (default 0.2), while the decoder carries the previous team until a new
+  controller is established.
 - Team tags of `SET PIECES` and `GOALS` are not used as phase priors: they refer to the restart,
   not to the whole window, and are handled by the anchors below.
 
@@ -118,6 +149,9 @@ its `Type` says which one. We use each as an anchor:
    ground truth). Throw-ins are tagged `N/A`, so there the taker is the nearest player.
 4. **Goals.** From the end of a `GOALS` window to the next kick-off restart: D.
 
+The default anchor weights are non-zero for the initial run. On the Metrica calibration path,
+`k_sp_dead` and `k_sp_team` are searched alongside the other evidence weights.
+
 **Calibrating the tag weights without tags.** Metrica has no Smart Tagging, so we synthesise it from
 the Metrica events (`metrica.synthetic_tags`): a 3–7 s window placed randomly around each restart
 (1–4 s before it), the Type, the taker's team (`N/A` for throw-ins), and — the important part —
@@ -135,8 +169,8 @@ the stoppages; the anchors are aimed at the automatic tracking, where it finds o
 
 | asset | used? | how / why not |
 |---|---|---|
-| Tactical ATD (tracking) | **yes** | ball and player positions → all features |
-| Tactical Smart Tagging | **yes** | team and set-piece prior (section 1.4) |
+| Tactical ATD (tracking) | **yes** | observed ball and player positions → features and ball-position estimates |
+| Tactical Smart Tagging | **yes** | phase priors, `LONG BALL` context and set-piece anchors (section 1.4) |
 | Tactical / broadcast video | no | team decision: numeric data only, within the time and compute we had |
 | Homography (tactical, broadcast) | no | positions in the ATD are already in pitch coordinates |
 | Broadcast ATD | no | covers a different video, and the submission is indexed on the tactical video |
@@ -181,8 +215,11 @@ shortcut.
 - **Objective**: the official spellF1 (`evaluation/possession_metrics.py`) on the two Metrica
   games, atd_like ball, ball gaps drawn with a fixed seed.
 - **Search**: seeded random search over `k_team`, `control_decay`, `flight_speed`, `slow_center`,
-  `k_slow`, `k_still`, `d_bias`, `k_dead`, `k_sp_dead`, `k_sp_team`, `sp_back_scale` and the decoder (`switch` 2–15, `min_pos` 5–75 frames,
-  `min_dead` 10–150 frames). The search runs in parallel with checkpoint and resume
+  `k_slow`, `k_still`, `d_bias`, `k_dead`, `k_sp_dead`, `k_sp_team`, `sp_back_scale`,
+  `controller_min_strength` and the decoder
+  (`switch` 2–15, `switch_team` 0.5–10, `min_pos` 10/15/20 frames, `min_dead` 10–150 frames).
+  Each parameter draw is scored with all three `min_pos` values to make the comparison paired.
+  The search runs in parallel with checkpoint and resume
   (`calibrate.parallel_search`).
 - **Leave-one-game-out**: during calibration, the dead-ball classifier used on each game is trained
   on the other game only. The final classifier for the challenge game is trained on both games.

@@ -20,6 +20,9 @@ SEARCH = {  # (low, high) sampled uniformly
     "k_team": (0.1, 1.5),
     "control_decay": (0.5, 3.0),
     "flight_speed": (6.0, 16.0),
+    "controller_relative_speed": (0.8, 6.0),
+    "controller_action_weight": (0.0, 0.5),
+    "controller_min_strength": (0.0, 0.6),
     "slow_center": (0.8, 1.8),
     "k_slow": (0.05, 0.8),
     "k_still": (0.0, 0.8),
@@ -29,7 +32,9 @@ SEARCH = {  # (low, high) sampled uniformly
     "k_sp_team": (0.0, 1.5),
     "sp_back_scale": (0.5, 1.5),
 }
-DECODE_SEARCH = {"switch": (2.0, 15.0), "min_pos": (5, 75), "min_dead": (10, 150)}
+DECODE_SEARCH = {"switch": (2.0, 15.0), "switch_team": (0.5, 10.0),
+                 "min_dead": (10, 150)}
+MIN_POS_CANDIDATES = (10, 15, 20)
 
 
 def prepare(games=(1, 2), seed=0, ball_mode="atd_like", gap_model=False, dead_model=True):
@@ -100,10 +105,13 @@ def score(prepared, params, cfg):
     return float(np.mean(s)), s
 
 
-def make_cfg(sw, mp, md):
+def make_cfg(sw, mp, md, switch_team=None):
     cfg = copy.deepcopy(decode.DECODE)
     cfg["min_len"] = {emissions.H: int(mp), emissions.A: int(mp), emissions.D: int(md)}
     cfg["switch_cost"] = {k: float(sw) for k in cfg["switch_cost"]}
+    if switch_team is not None:
+        cfg["switch_cost"][(emissions.H, emissions.A)] = float(switch_team)
+        cfg["switch_cost"][(emissions.A, emissions.H)] = float(switch_team)
     return cfg
 
 
@@ -112,6 +120,7 @@ def sample(rng):
     for k, (lo, hi) in SEARCH.items():
         p[k] = float(rng.uniform(lo, hi))
     d = {k: float(rng.uniform(*v)) for k, v in DECODE_SEARCH.items()}
+    d["min_pos"] = int(rng.choice(MIN_POS_CANDIDATES))
     return p, d
 
 
@@ -121,7 +130,8 @@ def random_search(n_trials, seed, out_path=None, prepared=None):
     results = []
     for _ in range(n_trials):
         p, d = sample(rng)
-        m, per = score(prepared, p, make_cfg(d["switch"], d["min_pos"], d["min_dead"]))
+        m, per = score(prepared, p, make_cfg(d["switch"], d["min_pos"], d["min_dead"],
+                                             d["switch_team"]))
         results.append({"spell": m, "per_game": per, "params": p, "decode": d})
         if out_path:
             with open(out_path, "a") as fh:
@@ -148,9 +158,12 @@ def _init_worker():
 
 
 def _eval_trial(task):
-    seed, i = task
+    seed, i, *min_pos = task
     p, d = sample(np.random.default_rng([seed, i]))
-    m, per = score(_PREPARED, p, make_cfg(d["switch"], d["min_pos"], d["min_dead"]))
+    if min_pos:
+        d["min_pos"] = int(min_pos[0])
+    m, per = score(_PREPARED, p, make_cfg(d["switch"], d["min_pos"], d["min_dead"],
+                                          d["switch_team"]))
     return {"seed": seed, "trial": i, "spell": m, "per_game": per, "params": p, "decode": d}
 
 
@@ -167,13 +180,17 @@ def load_log(path):
     return out
 
 
-def parallel_search(n_trials, n_jobs, seed, log_path=None):
+def parallel_search(n_trials, n_jobs, seed, log_path=None,
+                    min_pos_values=MIN_POS_CANDIDATES):
     """Random search over processes. With log_path: resumes from the log and returns ALL the
     records in it (keep one log per code version: old records are scored with old code)."""
     from multiprocessing import Pool
     done = load_log(log_path)
-    have = {r["trial"] for r in done if r.get("seed") == seed and "trial" in r}
-    todo = [(seed, i) for i in range(n_trials) if i not in have]
+    sweep = tuple(int(v) for v in min_pos_values) if min_pos_values else (None,)
+    have = {(r.get("trial"), r.get("decode", {}).get("min_pos"))
+            for r in done if r.get("seed") == seed and "trial" in r}
+    todo = [(seed, i, mp) for i in range(n_trials) for mp in sweep
+            if (i, mp) not in have]
     print(f"log: {len(done)} configurazioni gia' fatte, {len(todo)} da fare")
     if todo:
         if log_path:
@@ -193,8 +210,15 @@ def parallel_search(n_trials, n_jobs, seed, log_path=None):
 
 
 def best_of(results):
-    """Robust choice: the configuration whose WORSE game is best (avoids a lucky single game)."""
-    return max(results, key=lambda r: min(r["per_game"]))
+    """Robust choice; break equal worst-game scores by mean score."""
+    return max(results, key=lambda r: (min(r["per_game"]), r["spell"]))
+
+
+def best_by_min_pos(results):
+    """Best robust config for each tested minimum live-possession duration."""
+    return {mp: max((r for r in results if int(r["decode"]["min_pos"]) == mp),
+                    key=lambda r: (min(r["per_game"]), r["spell"]))
+            for mp in sorted({int(r["decode"]["min_pos"]) for r in results})}
 
 
 def write_params(best, path, n_trials, seed):

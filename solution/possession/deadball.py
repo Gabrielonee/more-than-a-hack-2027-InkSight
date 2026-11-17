@@ -27,7 +27,7 @@ from .features import runs
 
 FEATURES = (
     # ball (NaN when not tracked)
-    "ball_present", "ball_outside", "ball_speed", "ball_still_1s", "ball_still_3s",
+    "ball_present", "ball_position_confidence", "ball_outside", "ball_speed", "ball_still_1s", "ball_still_3s",
     "ball_speed_max_past2s", "ball_speed_max_next2s",
     "to_touchline", "to_goalline", "to_corner", "to_center", "to_goalarea",
     "near_player", "near_gap",                       # nearest player; |d_home - d_away|
@@ -68,7 +68,7 @@ def _since_last(present):
 
 def frame_features(f, atd):
     """(n, len(FEATURES)) float32 matrix for every frame."""
-    ball, players, team = atd["ball"], atd["players"], atd["team"]
+    ball, players, team = f["ball_for_geometry"], atd["players"], atd["team"]
     L, W = PITCH
     n = len(ball)
     x, y = ball[:, 0], ball[:, 1]
@@ -118,11 +118,11 @@ def frame_features(f, atd):
         spread = np.nanstd(px, 1)
         dball = np.sqrt(((players - ball[:, None, :]) ** 2).sum(-1))
         near10 = (dball < 10).sum(1).astype(np.float32)
-    near10[~present] = np.nan
     p90 = _roll(p90, FPS, "mean")
 
     cols = {
         "ball_present": present.astype(np.float32),
+        "ball_position_confidence": f["ball_position_confidence"],
         "ball_outside": np.clip(f["ball_outside"], -15, 10),
         "ball_speed": bs,
         "ball_still_1s": _roll(still, FPS, "mean"),

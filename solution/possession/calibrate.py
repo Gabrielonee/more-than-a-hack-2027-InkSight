@@ -22,7 +22,7 @@ SEARCH = {  # (low, high) sampled uniformly
     "flight_speed": (6.0, 16.0),
     "controller_relative_speed": (0.8, 6.0),
     "controller_action_weight": (0.0, 0.5),
-    "controller_min_strength": (0.0, 0.6),
+    "controller_acquisition_weight": (0.0, 0.5),
     "slow_center": (0.8, 1.8),
     "k_slow": (0.05, 0.8),
     "k_still": (0.0, 0.8),
@@ -99,7 +99,12 @@ def score(prepared, params, cfg):
         ll = (emissions.tracking_scores(f, params) + emissions.gap_scores(gl, params)
               + emissions.dead_scores(dl, params)
               + setpieces.setpiece_scores(tags, f, G["ball"], G["n_frames"], params)[0])
-        pred = decode.decode_match(ll, blocks_of(gt), G["n_frames"], cfg)
+        guard = emissions.team_switch_guard(f, params)
+        pred = decode.decode_match(ll, blocks_of(gt), G["n_frames"], cfg,
+                                   team_switch_guard=guard)
+        pred = decode.confirm_team_changes(pred, f.get("control_home", f["d_home"]),
+                                           f.get("control_away", f["d_away"]), params,
+                                           blocks_of(gt), context=f)
         gtc, prc = pm.label_codes(gt), pm.label_codes(pred)
         s.append(pm.spell_scores(gtc, prc, pm.valid_runs(gtc))["mean_f1"])
     return float(np.mean(s)), s
@@ -221,10 +226,183 @@ def best_by_min_pos(results):
             for mp in sorted({int(r["decode"]["min_pos"]) for r in results})}
 
 
-def write_params(best, path, n_trials, seed):
+def controller_stability_sweep(params, cfg, seeds=(0, 1, 2, 3),
+                               windows=(0, 10, 15, 20)):
+    """Compare same-player control persistence across fixed masks/tags from each seed.
+
+    Select by worst per-game spellF1, then mean. This ablation keeps every learned/decoded
+    parameter fixed and only changes the trailing control window.
+    """
+    records = []
+    for seed in seeds:
+        prepared = prepare(seed=seed)
+        for window in windows:
+            p = dict(params, controller_stability_frames=int(window))
+            mean, per_game = score(prepared, p, cfg)
+            records.append({"seed": int(seed), "window": int(window),
+                            "spell": mean, "per_game": per_game})
+    summary = {}
+    for window in windows:
+        rows = [r for r in records if r["window"] == int(window)]
+        scores = [v for row in rows for v in row["per_game"]]
+        summary[int(window)] = {
+            "mean": float(np.mean(scores)), "worst": float(np.min(scores)),
+            "per_seed_mean": float(np.mean([row["spell"] for row in rows])),
+        }
+    selected = max(summary, key=lambda w: (summary[w]["worst"], summary[w]["mean"]))
+    return {"records": records, "summary": summary, "selected_window": int(selected)}
+
+
+def team_dwell_sweep(params, cfg, seeds=(0, 1, 2, 3),
+                     min_pos_values=(20, 30, 40, 50)):
+    """Test how long a challenger team must persist before a possession change is allowed.
+
+    The HMM's minimum H/A duration acts as a team-level dwell time, independent of player
+    identity: a handoff between teammates remains the same possession state.
+    """
+    records = []
+    for seed in seeds:
+        prepared = prepare(seed=seed)
+        for min_pos in min_pos_values:
+            c = copy.deepcopy(cfg)
+            c["min_len"][emissions.H] = int(min_pos)
+            c["min_len"][emissions.A] = int(min_pos)
+            mean, per_game = score(prepared, params, c)
+            records.append({"seed": int(seed), "min_pos": int(min_pos),
+                            "spell": mean, "per_game": per_game})
+    summary = {}
+    for min_pos in min_pos_values:
+        rows = [r for r in records if r["min_pos"] == int(min_pos)]
+        scores = [v for row in rows for v in row["per_game"]]
+        summary[int(min_pos)] = {
+            "mean": float(np.mean(scores)), "worst": float(np.min(scores)),
+        }
+    selected = max(summary, key=lambda m: (summary[m]["worst"], summary[m]["mean"]))
+    return {"records": records, "summary": summary, "selected_min_pos": int(selected)}
+
+
+def team_control_sweep(params, cfg, seeds=(0, 1, 2, 3), variants=None):
+    """Compare temporal smoothing before and after pooling candidate players by team."""
+    variants = variants or {
+        "player15": {"controller_stability_frames": 15, "team_control_stability_frames": 0},
+        "team15": {"controller_stability_frames": 0, "team_control_stability_frames": 15},
+        "team30": {"controller_stability_frames": 0, "team_control_stability_frames": 30},
+        "player15_team15": {"controller_stability_frames": 15,
+                             "team_control_stability_frames": 15},
+    }
+    records = []
+    for seed in seeds:
+        prepared = prepare(seed=seed)
+        for name, update in variants.items():
+            p = dict(params)
+            p.update(update)
+            mean, per_game = score(prepared, p, cfg)
+            records.append({"seed": int(seed), "variant": name, "spell": mean,
+                            "per_game": per_game})
+    summary = {}
+    for name in variants:
+        rows = [r for r in records if r["variant"] == name]
+        scores = [v for row in rows for v in row["per_game"]]
+        summary[name] = {"mean": float(np.mean(scores)), "worst": float(np.min(scores))}
+    selected = max(summary, key=lambda name: (summary[name]["worst"], summary[name]["mean"]))
+    return {"records": records, "summary": summary, "selected_variant": selected}
+
+
+def team_switch_guard_sweep(params, cfg, seeds=(0, 1, 2, 3), variants=None):
+    """Test challenger persistence only on H↔A transitions, leaving D rules untouched."""
+    variants = variants or {
+        "off": {"team_switch_support_window": 0, "team_switch_support_cost": 0.0},
+        "w15_c2": {"team_switch_support_window": 15, "team_switch_support_cost": 2.0},
+        "w25_c2": {"team_switch_support_window": 25, "team_switch_support_cost": 2.0},
+        "w25_c4": {"team_switch_support_window": 25, "team_switch_support_cost": 4.0},
+        "w40_c4": {"team_switch_support_window": 40, "team_switch_support_cost": 4.0},
+        "w40_c6": {"team_switch_support_window": 40, "team_switch_support_cost": 6.0},
+    }
+    records = []
+    for seed in seeds:
+        prepared = prepare(seed=seed)
+        for name, update in variants.items():
+            p = dict(params)
+            p.update(update)
+            mean, per_game = score(prepared, p, cfg)
+            records.append({"seed": int(seed), "variant": name, "spell": mean,
+                            "per_game": per_game})
+    summary = {}
+    for name in variants:
+        rows = [r for r in records if r["variant"] == name]
+        scores = [v for row in rows for v in row["per_game"]]
+        summary[name] = {"mean": float(np.mean(scores)), "worst": float(np.min(scores))}
+    selected = max(summary, key=lambda name: (summary[name]["worst"], summary[name]["mean"]))
+    return {"records": records, "summary": summary, "selected_variant": selected}
+
+
+def possession_rule_sweep(params, cfg, seeds=(0, 1, 2, 3), variants=None):
+    """Paired experiment for team support pooling and latent-contest change confirmation."""
+    variants = variants or {
+        "off": {"control_team_support_weight": 0.0, "team_change_confirm_frames": 0},
+        "top2_w20": {"control_team_support_weight": 0.2, "control_team_support_k": 2,
+                     "team_change_confirm_frames": 0},
+        "top3_w20": {"control_team_support_weight": 0.2, "control_team_support_k": 3,
+                     "team_change_confirm_frames": 0},
+        "confirm15": {"team_change_confirm_frames": 15,
+                      "team_change_confirm_fraction": 0.65,
+                      "team_change_min_strength": 0.15,
+                      "team_change_min_margin": 0.05},
+        "confirm20": {"team_change_confirm_frames": 20,
+                      "team_change_confirm_fraction": 0.65,
+                      "team_change_min_strength": 0.15,
+                      "team_change_min_margin": 0.05},
+        "top2_confirm15": {"control_team_support_weight": 0.2,
+                           "control_team_support_k": 2,
+                           "team_change_confirm_frames": 15,
+                           "team_change_confirm_fraction": 0.65,
+                           "team_change_min_strength": 0.15,
+                           "team_change_min_margin": 0.05},
+        "acquisition15": {"controller_acquisition_weight": 0.15,
+                           "team_change_confirm_frames": 15,
+                           "team_change_confirm_fraction": 0.65,
+                           "team_change_min_strength": 0.15,
+                           "team_change_min_margin": 0.05},
+        "context10_acq15": {"controller_acquisition_weight": 0.15,
+                             "team_change_confirm_frames": 10,
+                             "team_change_confirm_fraction": 0.65,
+                             "team_change_min_strength": 0.15,
+                             "team_change_min_margin": 0.05,
+                             "team_change_contextual": 1},
+        "all_context15": {"control_team_support_weight": 0.2,
+                          "control_team_support_k": 2,
+                          "controller_acquisition_weight": 0.15,
+                          "team_change_confirm_frames": 15,
+                          "team_change_confirm_fraction": 0.65,
+                          "team_change_min_strength": 0.15,
+                          "team_change_min_margin": 0.05,
+                          "team_change_contextual": 1},
+    }
+    records = []
+    for seed in seeds:
+        prepared = prepare(seed=seed)
+        for name, update in variants.items():
+            p = dict(params)
+            p.update(update)
+            mean, per_game = score(prepared, p, cfg)
+            records.append({"seed": int(seed), "variant": name, "spell": mean,
+                            "per_game": per_game})
+    summary = {}
+    for name in variants:
+        rows = [r for r in records if r["variant"] == name]
+        scores = [v for row in rows for v in row["per_game"]]
+        summary[name] = {"mean": float(np.mean(scores)), "worst": float(np.min(scores))}
+    selected = max(summary, key=lambda name: (summary[name]["worst"], summary[name]["mean"]))
+    return {"records": records, "summary": summary, "selected_variant": selected}
+
+
+def write_params(best, path, n_trials, seed, controller_stability=None):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    result = {"source": "random search on Metrica Sample Games 1-2", "seed": seed,
+              "n_trials": n_trials, "spell_f1_metrica": best["per_game"],
+              "params": best["params"], "decode": best["decode"]}
+    if controller_stability is not None:
+        result["controller_stability_validation"] = controller_stability
     with open(path, "w") as fh:
-        json.dump({"source": "random search on Metrica Sample Games 1-2", "seed": seed,
-                   "n_trials": n_trials, "spell_f1_metrica": best["per_game"],
-                   "params": best["params"], "decode": best["decode"]}, fh, indent=2)
+        json.dump(result, fh, indent=2)
     return path

@@ -55,13 +55,18 @@ def compute(atd, tags=None, blocks=None):
     f["ball_for_geometry"] = ball
     f["team_of_track"] = team
     long_ball = np.zeros(len(ball), bool)
+    long_ball_release = np.zeros(len(ball), np.float32)
     for tag in tags or ():
         if (tag.get("code") or "").strip().upper() == "LONG BALL":
             a = max(0, int(tag.get("start_frame", 0)))
             b = min(len(ball), int(tag.get("end_frame", a)))
             if b > a:
                 long_ball[a:b] = True
+                end = min(len(ball), b + FPS)
+                if end > b:
+                    long_ball_release[b:end] = np.linspace(1.0, 0.0, end - b, endpoint=False)
     f["long_ball"] = long_ball
+    f["long_ball_release"] = long_ball_release
 
     # ball speed, robust to single-frame jumps of the automatic tracker
     bs = _central_speed(ball)
@@ -72,6 +77,9 @@ def compute(atd, tags=None, blocks=None):
     player_v = _central_velocity(players)
     ball_v = _central_velocity(ball)
     relative_speed = np.sqrt(((player_v - ball_v[:, None, :]) ** 2).sum(-1))
+    distance_rate = np.full(d.shape, np.nan, np.float32)
+    distance_rate[1:-1] = (d[2:] - d[:-2]) * FPS / 2.0
+    approaching = np.maximum(-distance_rate, 0.0)
     nearby = np.where(np.isfinite(d), (d < 2.5).astype(np.float32), np.nan)
     persistence = np.stack([rolling(nearby[:, j], FPS, "mean")
                             for j in range(nearby.shape[1])], axis=1)
@@ -79,10 +87,15 @@ def compute(atd, tags=None, blocks=None):
     dv = ball_v[4:] - ball_v[:-4]
     ball_accel[2:-2] = np.sqrt((dv ** 2).sum(-1)) * FPS / 4.0
     ball_accel = rolling(ball_accel, 5, "median")
+    speed_rate = np.full(len(ball), np.nan, np.float32)
+    speed_rate[2:-2] = (f["ball_speed"][4:] - f["ball_speed"][:-4]) * FPS / 4.0
+    ball_deceleration = rolling(np.maximum(-speed_rate, 0.0), 5, "median")
     f["player_ball_distance"] = d
     f["player_relative_speed"] = relative_speed
+    f["player_approach_speed"] = approaching
     f["player_nearby_persistence"] = persistence
     f["ball_acceleration"] = ball_accel
+    f["ball_deceleration"] = ball_deceleration
 
     # Nearest distance by team remains useful to restart and gap features.
     with np.errstate(all="ignore"):

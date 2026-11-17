@@ -23,6 +23,13 @@ The pipeline therefore has two layers:
    the H↔A team-change penalty (`switch_team`) is calibrated separately from transitions to D.
    Frames outside the two graded halves are written as X. Inside a half we never
    abstain, because X on a graded frame is always a miss.
+3. **A team-level challenger check** (`confirm_team_changes`) keeps the incumbent H/A label while
+   the proposed opponent lacks enough persistent control support. The active window is 10 frames;
+   long-ball/high-speed and close-control contexts lengthen it, while a receiver cue can shorten it.
+   The receiver cue combines a nearby player's approach with ball deceleration and receives extra
+   weight immediately after an XML `LONG BALL` interval. Set-piece and goal anchors remain in the
+   earlier emission/anchor stage. A top-k teammate support option is implemented but disabled in
+   the active config because it did not improve the Metrica sweep robustly.
 
 We chose an explicit HMM over an end-to-end sequence model (e.g. the TCN of Borghesi et al. 2023)
 because labelled training data from other games is scarce (two open games) and the tracking
@@ -37,7 +44,9 @@ Features from the tracking (`possession/features.py`, metres and m/s):
 - ball acceleration near each player as a small cue for a kick or reception;
 - team control scores: each player's proximity score is reduced by relative motion and increased
   by persistent proximity and a nearby ball-motion impulse; the strongest candidate represents
-  the team's current controller;
+  the team's current controller. A 15-frame trailing average is applied separately to each
+  player slot before taking the team maximum, so a brief noisy candidate switch does not instantly
+  change the controlling team;
 - ball speed (centred difference over ±2 frames, then a 5-frame median to absorb tracker jumps);
 - how far the ball is outside the pitch;
 - collective player speed (mean over visible players, 2 s rolling mean; values above 12 m/s
@@ -67,8 +76,9 @@ Evidence terms:
   `control_radius` (scale `control_decay`) and is down-weighted when the ball moves faster than
   `flight_speed` (a ball in flight is controlled by nobody). The evidence is the difference
   between home and away control, weight `k_team`; estimated positions are multiplied by their
-  confidence. A soft `controller_min_strength` gate tapers weak team margins when neither side has
-  a convincing controller, reducing switches caused by loose-ball frames.
+  confidence. A per-player 15-frame trailing average prevents isolated player-slot noise from
+  changing the team maximum; the acquisition cue adds evidence when a nearby player approaches a
+  decelerating ball.
 - **Dead ball**: the ball beyond the line by more than `outside_margin` (`k_outside`), slow
   collective player speed (a tanh around `slow_center`, `k_slow`), a still ball with slow
   players (`k_still`), and a constant prior against D (`d_bias`).
@@ -215,8 +225,7 @@ shortcut.
 - **Objective**: the official spellF1 (`evaluation/possession_metrics.py`) on the two Metrica
   games, atd_like ball, ball gaps drawn with a fixed seed.
 - **Search**: seeded random search over `k_team`, `control_decay`, `flight_speed`, `slow_center`,
-  `k_slow`, `k_still`, `d_bias`, `k_dead`, `k_sp_dead`, `k_sp_team`, `sp_back_scale`,
-  `controller_min_strength` and the decoder
+  `k_slow`, `k_still`, `d_bias`, `k_dead`, `k_sp_dead`, `k_sp_team`, `sp_back_scale` and the decoder
   (`switch` 2–15, `switch_team` 0.5–10, `min_pos` 10/15/20 frames, `min_dead` 10–150 frames).
   Each parameter draw is scored with all three `min_pos` values to make the comparison paired.
   The search runs in parallel with checkpoint and resume
@@ -230,30 +239,43 @@ shortcut.
 
 ### 4.1 Results on the calibration games (Metrica, atd_like, leave-one-game-out)
 
-| | without dead-ball classifier | with |
-|---|---|---|
-| spellF1, worse game (best config of 100) | 0.374 | **0.413** |
-| configs improved (paired, same params) | – | 100 / 100 |
-| macroF1 (two games) | 0.72 / 0.70 | 0.76 / 0.75 |
-| D recall (two games) | 0.78 / 0.68 | 0.84 / 0.84 |
-| dead-ball AUC, out of game | 0.87 / 0.80 (player speed alone) | 0.925 / 0.914 |
+The paired sweep evaluates 80 parameter draws at each of 10, 15 and 20 minimum possession frames.
+The robust selection maximizes the worse game's spellF1; ties use the mean:
 
-A logistic regression on the same features reaches 0.92 / 0.91 AUC and 0.397 worse-game spellF1.
-We kept gradient boosting.
+| minimum H/A frames | game 1 | game 2 | mean spellF1 | worse game |
+|---:|---:|---:|---:|---:|
+| 10 | 0.4721 | 0.4364 | 0.4542 | 0.4364 |
+| 15 | 0.4721 | 0.4364 | 0.4542 | 0.4364 |
+| 20 | 0.4733 | 0.4364 | **0.4549** | **0.4364** |
 
-## 5. Limitations
+The average across all 80 paired parameter draws is 0.3844, 0.3844 and 0.3845 respectively, so
+the duration choice has little effect in this sweep. The selected decoder uses 20 frames,
+`switch_team=2.31` for H↔A and `switch=4.09` for transitions involving D. These are calibration
+results, not an independent estimate of full-match performance.
 
-- **Domain shift, Metrica → ATD.** On the public window the dead-ball recall is 0.33 (precision
-  0.89), against 0.84 on Metrica. Two stoppages in three are still read as play, which merges
-  possessions: 14 predicted spells against 17, mean duration 19.9 s against 14.2 s. Before the
-  dead-ball classifier the recall was 0.08–0.11 and only 9 spells were predicted.
-- **Team errors.** Team accuracy on live frames is about 0.83, and some whole spells are given to
-  the wrong team. Nearest-player control alone agrees with the truth about 76% of the time.
-- **Boundaries.** Few transitions land within ±1 s of the true one. spellF1 drops quickly with the
-  IoU threshold (0.52 at 0.3 → 0.13 at 0.7 on the public window).
-- **Two calibration games only.** The public window has 17 possessions, so its bootstrap interval
-  is very wide (spellF1 5–95%: 0.18–0.50). Differences below the scorer's noise band are not
-  meaningful.
+## 5. Public-window check and limitations
+
+The current submission scores macroF1 **0.896** and spellF1 **0.567** on the 7,500 officially
+annotated public frames. It predicts 19 possessions against 17 annotated spells (mean duration
+12.7 s against 14.2 s). The nearest-player `baseline_smooth125` is a heuristic comparator, not
+ground truth: it scores spellF1 0.424 with 16 predicted possessions. The 5–95% bootstrap ranges
+overlap: 0.349–0.626 for the current model and 0.267–0.594 for the heuristic.
+
+- **Segmentation remains the main weakness.** At IoU 0.5 the current model matches 12 of 17
+  annotated spells, misses 5 and produces 7 spurious spells. Transition F1 at ±25 frames is
+  0.429. SpellF1 at IoU 0.5 is 0.667; the reported 0.567 averages F1 over IoU 0.3–0.7.
+- **Team assignment still needs work.** Live-frame team accuracy is 0.874. The metric evaluates
+  against the public annotations; the nearest-player baseline remains only a heuristic reference.
+- **Transfer is uncertain.** A local sweep on this public window selected `k_dead=0.06`,
+  `k_team=1.15` and 5 confirmation frames. Its spellF1 bootstrap interval (0.411–0.711) overlaps
+  the previous setting (0.369–0.646). The new parameters have not been re-evaluated on Metrica;
+  the prior contextual candidate scored 0.4339 there, below its 0.4511 base. The public result has
+  only 17 annotated spells, so this improvement does not establish generalization.
+- **Only two calibration games and 17 public spells.** The metrics have wide uncertainty and do
+  not support a strong ranking claim.
+
+The tested `controller_min_strength` soft gate did not help: its best Metrica result was 0.447
+(worse-game 0.430) and its public result fell to macroF1 0.681 / spellF1 0.296. It is not retained.
 
 With more time: a team classifier built like the dead-ball one, more open games for calibration
 (other providers, converted to the same format).

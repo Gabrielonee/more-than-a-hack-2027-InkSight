@@ -1,0 +1,62 @@
+{
+  "source": "random search on Metrica Sample Games 1-2",
+  "seed": 2026,
+  "n_trials": 240,
+  "spell_f1_metrica": [
+    0.4732824427480916,
+    0.43642495784148394
+  ],
+  "params": {
+    "control_radius": 1.0,
+    "control_decay": 1.7593400091870433,
+    "flight_speed": 13.165407962450445,
+    "flight_weight": 0.3,
+    "controller_relative_speed": 3.177169954151123,
+    "controller_action_weight": 0.46530665090045287,
+    "long_ball_control_scale": 0.2,
+    "k_team": 1.288575767241591,
+    "outside_margin": 0.5,
+    "k_outside": 1.5,
+    "slow_center": 1.7079227771535148,
+    "slow_scale": 0.35,
+    "k_slow": 0.627114864649373,
+    "k_still": 0.5071994170177501,
+    "d_bias": -0.22625753500361243,
+    "k_gap": 0.0,
+    "k_dead": 0.2202055120202859,
+    "k_tag_team": 0.08,
+    "k_tag_setpiece": 0.0,
+    "k_sp_dead": 0.929710976643392,
+    "k_sp_team": 0.06777320751357874,
+    "sp_back_scale": 1.2279323244127767,
+    "controller_stability_frames": 15
+  },
+  "decode": {
+    "switch": 4.086213017488337,
+    "switch_team": 2.3063041843201946,
+    "min_dead": 51.472370365087045,
+    "min_pos": 20
+  },
+  "controller_stability_validation": {
+    "method": "fixed-parameter trailing per-player control average; four atd_like masks, seeds 0-3; window selected by worst frame-game spellF1 then mean",
+    "selected_window": 15,
+    "summary": {
+      "0": {
+        "mean": 0.44673223715852894,
+        "worst": 0.4292527821939586
+      },
+      "10": {
+        "mean": 0.4487989099915778,
+        "worst": 0.42725724020442934
+      },
+      "15": {
+        "mean": 0.45112000096538707,
+        "worst": 0.4321367521367521
+      },
+      "20": {
+        "mean": 0.4502988019370886,
+        "worst": 0.4274914089347079
+      }
+    }
+  }
+}

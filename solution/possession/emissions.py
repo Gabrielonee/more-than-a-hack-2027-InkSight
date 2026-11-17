@@ -19,7 +19,25 @@ PARAMS = {
     "flight_weight": 0.3,
     "controller_relative_speed": 3.0,  # m/s scale for player/ball motion agreement
     "controller_action_weight": 0.2,    # bonus when a nearby player coincides with ball acceleration
-    "controller_min_strength": 0.0,     # soft gate: weak candidates should not trigger team changes
+    "controller_acquisition_weight": 0.0,  # receiver approach + ball deceleration cue
+    "controller_stability_frames": 0,   # trailing same-player control average; 0 disables it
+    "team_control_stability_frames": 0,  # smooth after pooling players by team; 0 disables it
+    "control_team_support_weight": 0.0,   # add weak support from the second candidate per team
+    "control_team_support_k": 2,
+    "team_switch_support_window": 0,     # candidate-team support window; 0 disables switch guard
+    "team_switch_support_strength": 0.15,
+    "team_switch_support_margin": 0.05,
+    "team_switch_support_cost": 0.0,
+    "team_change_confirm_frames": 0,     # latent contest/pending challenger; 0 disables it
+    "team_change_confirm_fraction": 0.7,
+    "team_change_min_strength": 0.15,
+    "team_change_min_margin": 0.05,
+    "team_change_contextual": 0,
+    "team_change_flight_extra_frames": 10,
+    "team_change_contested_extra_frames": 10,
+    "team_change_clear_action_frames": 7,
+    "team_change_acquisition_threshold": 0.25,
+    "team_change_contested_margin": 0.15,
     "long_ball_control_scale": 0.2,     # XML long-ball phase: ball is usually not yet controlled
     "k_team": 0.4,              # evidence per frame for full control vs none
     # dead ball
@@ -52,6 +70,21 @@ def _control(d, p):
     return np.where(np.isnan(d), 0.0, c)
 
 
+def _trailing_average(x, window):
+    """Per-column trailing average, preserving player-slot identity."""
+    x = np.asarray(x, np.float32)
+    n = len(x)
+    if window <= 1 or n == 0:
+        return x
+    cumulative = np.concatenate((np.zeros((1, x.shape[1]), np.float32),
+                                 np.cumsum(x, axis=0, dtype=np.float32)))
+    ends = np.arange(1, n + 1)
+    starts = np.maximum(0, ends - int(window))
+    totals = cumulative[ends] - cumulative[starts]
+    counts = np.minimum(ends, int(window)).astype(np.float32)[:, None]
+    return totals / counts
+
+
 def tracking_scores(f, p=PARAMS):
     n = len(f["ball_present"])
     ll = np.zeros((n, 3), np.float32)
@@ -68,34 +101,58 @@ def tracking_scores(f, p=PARAMS):
         control = prox * motion * (0.5 + 0.5 * persistence)
         action = np.clip(np.nan_to_num(f["ball_acceleration"], nan=0.0) / 8.0, 0.0, 1.0)
         control += p["controller_action_weight"] * prox * action[:, None]
+        approach = np.clip(np.nan_to_num(f.get("player_approach_speed", 0.0), nan=0.0) / 2.0,
+                           0.0, 1.0)
+        deceleration = np.clip(np.nan_to_num(f.get("ball_deceleration", np.zeros(n)), nan=0.0)
+                               / 6.0, 0.0, 1.0)
+        acquisition = prox * motion * approach * deceleration[:, None]
+        release = f.get("long_ball_release", np.zeros(n, np.float32))
+        acquisition *= (1.0 + release)[:, None]
+        control += p.get("controller_acquisition_weight", 0.0) * acquisition
         flight_scale = np.where(f["ball_speed"] > p["flight_speed"], p["flight_weight"], 1.0)
         control *= flight_scale[:, None]
         control *= f.get("ball_position_confidence", f["ball_present"]).astype(np.float32)[:, None]
         control *= np.where(f.get("long_ball", np.zeros(n, bool)),
                             p["long_ball_control_scale"], 1.0)[:, None]
+        raw_control = control
+        stability_frames = int(p.get("controller_stability_frames", 0))
+        if stability_frames > 1:
+            control = _trailing_average(control, stability_frames)
         team = f["team_of_track"]
-        ch = np.max(control[:, team == HOME], axis=1)
-        ca = np.max(control[:, team == AWAY], axis=1)
+        support_weight = float(p.get("control_team_support_weight", 0.0))
+        support_k = max(1, int(p.get("control_team_support_k", 2)))
+        team_scores = []
+        for side in (HOME, AWAY):
+            players = control[:, team == side]
+            best = np.max(players, axis=1)
+            if support_weight > 0 and support_k > 1:
+                k = min(support_k, players.shape[1])
+                top = np.sort(np.partition(players, -k, axis=1)[:, -k:], axis=1)
+                others = top[:, :-1]
+                support = np.mean(others, axis=1) if others.shape[1] else 0.0
+                best = np.clip(best + support_weight * support, 0.0, 1.0)
+            team_scores.append(best)
+        ch, ca = team_scores
+        f["acquisition_home"] = np.max(acquisition[:, team == HOME], axis=1)
+        f["acquisition_away"] = np.max(acquisition[:, team == AWAY], axis=1)
+        team_window = int(p.get("team_control_stability_frames", 0))
+        if team_window > 1:
+            pooled = _trailing_average(np.column_stack((ch, ca)), team_window)
+            ch, ca = pooled[:, 0], pooled[:, 1]
         slot = np.argmax(control, axis=1)
         strength = np.max(control, axis=1)
         f["controller_slot"] = np.where(strength >= 0.05, slot, -1).astype(np.int16)
         f["controller_team"] = np.where(strength >= 0.05, team[slot], -1).astype(np.int8)
         f["controller_strength"] = strength.astype(np.float32)
-        f["player_control_score"] = control
+        f["player_control_score"] = raw_control
+        f["stable_player_control_score"] = control
         f["control_home"], f["control_away"] = ch, ca
     else:
         ch, ca = _control(f["d_home"], p), _control(f["d_away"], p)
     w = np.where(f["ball_speed"] > p["flight_speed"], p["flight_weight"], 1.0)
     confidence = f.get("ball_position_confidence", f["ball_present"].astype(np.float32))
     if "player_control_score" in f:
-        # A small H/A margin is unreliable when neither side has a credible controller.
-        # Below the calibrated threshold, taper that evidence instead of letting weak
-        # candidates accumulate into a possession switch.
-        threshold = float(p.get("controller_min_strength", 0.0))
-        team_strength = np.maximum(ch, ca)
-        gate = (np.clip(team_strength / threshold, 0.0, 1.0)
-                if threshold > 1e-6 else 1.0)
-        s = (ch - ca) * gate
+        s = ch - ca
     else:
         s = (ch - ca) * w * confidence
     ll[:, H] += p["k_team"] * s / 2
@@ -112,6 +169,31 @@ def tracking_scores(f, p=PARAMS):
     ll[:, D] += p["k_still"] * still
     ll[:, D] += p["d_bias"]
     return ll
+
+
+def team_switch_guard(f, p=PARAMS):
+    """Additional H↔A transition costs unless the challenger has sustained team control.
+
+    Column 0 guards H->A; column 1 guards A->H. Support is pooled by team, so a switch
+    between teammates does not reset it. Only H/A transitions are guarded; D transitions
+    still use their independent evidence and costs.
+    """
+    n = len(f["ball_present"])
+    window = int(p.get("team_switch_support_window", 0))
+    cost = float(p.get("team_switch_support_cost", 0.0))
+    guard = np.zeros((n, 2), np.float32)
+    if window <= 1 or cost <= 0 or "control_home" not in f:
+        return guard
+    ch, ca = f["control_home"], f["control_away"]
+    minimum = float(p.get("team_switch_support_strength", 0.15))
+    margin = float(p.get("team_switch_support_margin", 0.05))
+    home_support = (ch >= minimum) & ((ch - ca) >= margin)
+    away_support = (ca >= minimum) & ((ca - ch) >= margin)
+    hs = _trailing_average(home_support.astype(np.float32)[:, None], window)[:, 0]
+    aws = _trailing_average(away_support.astype(np.float32)[:, None], window)[:, 0]
+    guard[:, 0] = cost * (1.0 - aws)  # H->A requires sustained away-team control
+    guard[:, 1] = cost * (1.0 - hs)   # A->H requires sustained home-team control
+    return guard
 
 
 def gap_scores(gap_logit, p=PARAMS):

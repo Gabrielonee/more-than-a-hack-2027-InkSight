@@ -1,0 +1,1583 @@
+{
+  "ground_truth": "BAR-ATH public annotated window (7500 frames)",
+  "base": {
+    "macro_f1": 0.8452951273893419,
+    "spell_f1_mean": 0.5128205128205128,
+    "spell_f1_at_iou_05": 0.5641025641025642,
+    "pred_spells": 22
+  },
+  "method": "one-factor-at-a-time around active params (4-frame confirmation); same public 7500-frame GT; total tested variants: 64",
+  "variants": [
+    {
+      "name": "acq00",
+      "changes": {
+        "params": {
+          "controller_acquisition_weight": 0.0
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acq00.csv"
+    },
+    {
+      "name": "acq10",
+      "changes": {
+        "params": {
+          "controller_acquisition_weight": 0.1
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acq10.csv"
+    },
+    {
+      "name": "acq25",
+      "changes": {
+        "params": {
+          "controller_acquisition_weight": 0.25
+        }
+      },
+      "macro_f1": 0.8451840898809958,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acq25.csv"
+    },
+    {
+      "name": "acq35",
+      "changes": {
+        "params": {
+          "controller_acquisition_weight": 0.35
+        }
+      },
+      "macro_f1": 0.8452895568826002,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acq35.csv"
+    },
+    {
+      "name": "acqthreshold20",
+      "changes": {
+        "params": {
+          "team_change_acquisition_threshold": 0.2
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acqthreshold20.csv"
+    },
+    {
+      "name": "acqthreshold35",
+      "changes": {
+        "params": {
+          "team_change_acquisition_threshold": 0.35
+        }
+      },
+      "macro_f1": 0.8451840898809958,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_acqthreshold35.csv"
+    },
+    {
+      "name": "actionbonus04",
+      "changes": {
+        "params": {
+          "team_change_clear_action_frames": 4
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_actionbonus04.csv"
+    },
+    {
+      "name": "actionbonus10",
+      "changes": {
+        "params": {
+          "team_change_clear_action_frames": 10
+        }
+      },
+      "macro_f1": 0.8451896557802171,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_actionbonus10.csv"
+    },
+    {
+      "name": "flightextra05",
+      "changes": {
+        "params": {
+          "team_change_flight_extra_frames": 5
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_flightextra05.csv"
+    },
+    {
+      "name": "flightextra15",
+      "changes": {
+        "params": {
+          "team_change_flight_extra_frames": 15
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_flightextra15.csv"
+    },
+    {
+      "name": "contestextra05",
+      "changes": {
+        "params": {
+          "team_change_contested_extra_frames": 5
+        }
+      },
+      "macro_f1": 0.8451896557802171,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_contestextra05.csv"
+    },
+    {
+      "name": "contestextra15",
+      "changes": {
+        "params": {
+          "team_change_contested_extra_frames": 15
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_contestextra15.csv"
+    },
+    {
+      "name": "kdead15",
+      "changes": {
+        "params": {
+          "k_dead": 0.15
+        }
+      },
+      "macro_f1": 0.8474019034505941,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead15.csv"
+    },
+    {
+      "name": "kdead30",
+      "changes": {
+        "params": {
+          "k_dead": 0.3
+        }
+      },
+      "macro_f1": 0.831708635274365,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead30.csv"
+    },
+    {
+      "name": "kdead40",
+      "changes": {
+        "params": {
+          "k_dead": 0.4
+        }
+      },
+      "macro_f1": 0.8209276423176285,
+      "spell_f1_mean": 0.5025641025641026,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.5641025641025642,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead40.csv"
+    },
+    {
+      "name": "mindead40",
+      "changes": {
+        "decode": {
+          "min_dead": 40
+        }
+      },
+      "macro_f1": 0.8368222184830768,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_mindead40.csv"
+    },
+    {
+      "name": "mindead65",
+      "changes": {
+        "decode": {
+          "min_dead": 65
+        }
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_mindead65.csv"
+    },
+    {
+      "name": "kteam10",
+      "changes": {
+        "params": {
+          "k_team": 1.0
+        }
+      },
+      "macro_f1": 0.8462281151869157,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kteam10.csv"
+    },
+    {
+      "name": "kteam16",
+      "changes": {
+        "params": {
+          "k_team": 1.6
+        }
+      },
+      "macro_f1": 0.8386499785819767,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kteam16.csv"
+    },
+    {
+      "name": "spdead070",
+      "changes": {
+        "params": {
+          "k_sp_dead": 0.7
+        }
+      },
+      "macro_f1": 0.8421640660654606,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_spdead070.csv"
+    },
+    {
+      "name": "spdead114",
+      "changes": {
+        "params": {
+          "k_sp_dead": 1.15
+        }
+      },
+      "macro_f1": 0.8453133157170175,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_spdead114.csv"
+    },
+    {
+      "name": "spteam00",
+      "changes": {
+        "params": {
+          "k_sp_team": 0.0
+        }
+      },
+      "macro_f1": 0.845132209164697,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_spteam00.csv"
+    },
+    {
+      "name": "spteam15",
+      "changes": {
+        "params": {
+          "k_sp_team": 0.15
+        }
+      },
+      "macro_f1": 0.8454581112941729,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_spteam15.csv"
+    },
+    {
+      "name": "kdead10",
+      "changes": {
+        "k_dead": 0.1
+      },
+      "macro_f1": 0.8605452776414763,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 10,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead10.csv"
+    },
+    {
+      "name": "kdead12",
+      "changes": {
+        "k_dead": 0.12
+      },
+      "macro_f1": 0.857113582262912,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 10,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead12.csv"
+    },
+    {
+      "name": "kdead18",
+      "changes": {
+        "k_dead": 0.18
+      },
+      "macro_f1": 0.8462597448354489,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead18.csv"
+    },
+    {
+      "name": "kdead20",
+      "changes": {
+        "k_dead": 0.2
+      },
+      "macro_f1": 0.8458742063539294,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead20.csv"
+    },
+    {
+      "name": "combo_dead15_team15",
+      "changes": {
+        "k_dead": 0.15,
+        "k_sp_team": 0.15
+      },
+      "macro_f1": 0.8474019034505941,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 11,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_combo_dead15_team15.csv"
+    },
+    {
+      "name": "combo_dead15_anchor115",
+      "changes": {
+        "k_dead": 0.15,
+        "k_sp_dead": 1.15
+      },
+      "macro_f1": 0.8540625569959138,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 10,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_combo_dead15_anchor115.csv"
+    },
+    {
+      "name": "combo_dead15_control10",
+      "changes": {
+        "k_dead": 0.15,
+        "k_team": 1.0
+      },
+      "macro_f1": 0.8541429997973221,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 10,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_combo_dead15_control10.csv"
+    },
+    {
+      "name": "combo_dead15_both_xml",
+      "changes": {
+        "k_dead": 0.15,
+        "k_sp_team": 0.15,
+        "k_sp_dead": 1.15
+      },
+      "macro_f1": 0.8540625569959138,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 10,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_combo_dead15_both_xml.csv"
+    },
+    {
+      "name": "kdead08",
+      "changes": {
+        "k_dead": 0.08
+      },
+      "macro_f1": 0.8822353953800078,
+      "spell_f1_mean": 0.5405405405405406,
+      "spell_f1_at_iou_05": 0.5945945945945946,
+      "pred_spells": 20,
+      "iou_f1": {
+        "0.3": 0.7027027027027027,
+        "0.4": 0.6486486486486486,
+        "0.5": 0.5945945945945946,
+        "0.6": 0.4324324324324324,
+        "0.7": 0.3243243243243243
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead08.csv"
+    },
+    {
+      "name": "kdead09",
+      "changes": {
+        "k_dead": 0.09
+      },
+      "macro_f1": 0.8625754427923579,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead09.csv"
+    },
+    {
+      "name": "kdead11",
+      "changes": {
+        "k_dead": 0.11
+      },
+      "macro_f1": 0.8588273432231114,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead11.csv"
+    },
+    {
+      "name": "kdead13",
+      "changes": {
+        "k_dead": 0.13
+      },
+      "macro_f1": 0.8491449865035058,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead13.csv"
+    },
+    {
+      "name": "kdead10_spdead115",
+      "changes": {
+        "k_dead": 0.1,
+        "k_sp_dead": 1.15
+      },
+      "macro_f1": 0.8601929541592156,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead10_spdead115.csv"
+    },
+    {
+      "name": "kdead10_spteam15",
+      "changes": {
+        "k_dead": 0.1,
+        "k_sp_team": 0.15
+      },
+      "macro_f1": 0.8605452776414763,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead10_spteam15.csv"
+    },
+    {
+      "name": "kdead10_kteam10",
+      "changes": {
+        "k_dead": 0.1,
+        "k_team": 1.0
+      },
+      "macro_f1": 0.8749611246884227,
+      "spell_f1_mean": 0.5405405405405406,
+      "spell_f1_at_iou_05": 0.5945945945945946,
+      "pred_spells": 20,
+      "iou_f1": {
+        "0.3": 0.7027027027027027,
+        "0.4": 0.6486486486486486,
+        "0.5": 0.5945945945945946,
+        "0.6": 0.4324324324324324,
+        "0.7": 0.3243243243243243
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead10_kteam10.csv"
+    },
+    {
+      "name": "kdead060",
+      "changes": {
+        "k_dead": 0.06
+      },
+      "macro_f1": 0.8891069435413556,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "per_class": {
+        "H": {
+          "precision": 0.9304181295882541,
+          "recall": 0.8439490445859873,
+          "f1": 0.8850766661606194,
+          "support": 3454
+        },
+        "A": {
+          "precision": 0.8114558472553699,
+          "recall": 0.9235545207605743,
+          "f1": 0.8638838475499091,
+          "support": 2577
+        },
+        "D": {
+          "precision": 0.9295676429567643,
+          "recall": 0.9074200136147039,
+          "f1": 0.9183603169135377,
+          "support": 1469
+        }
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060.csv"
+    },
+    {
+      "name": "kdead070",
+      "changes": {
+        "k_dead": 0.07
+      },
+      "macro_f1": 0.8831161163005664,
+      "spell_f1_mean": 0.5405405405405406,
+      "spell_f1_at_iou_05": 0.5945945945945946,
+      "pred_spells": 20,
+      "iou_f1": {
+        "0.3": 0.7027027027027027,
+        "0.4": 0.6486486486486486,
+        "0.5": 0.5945945945945946,
+        "0.6": 0.4324324324324324,
+        "0.7": 0.3243243243243243
+      },
+      "per_class": {
+        "H": {
+          "precision": 0.9213021491782554,
+          "recall": 0.8439490445859873,
+          "f1": 0.880930794802055,
+          "support": 3454
+        },
+        "A": {
+          "precision": 0.8103506979911475,
+          "recall": 0.9235545207605743,
+          "f1": 0.8632571635836054,
+          "support": 2577
+        },
+        "D": {
+          "precision": 0.9278055754110078,
+          "recall": 0.8835942818243703,
+          "f1": 0.9051603905160391,
+          "support": 1469
+        }
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead070.csv"
+    },
+    {
+      "name": "kdead075",
+      "changes": {
+        "k_dead": 0.075
+      },
+      "macro_f1": 0.8827649031541829,
+      "spell_f1_mean": 0.5405405405405406,
+      "spell_f1_at_iou_05": 0.5945945945945946,
+      "pred_spells": 20,
+      "iou_f1": {
+        "0.3": 0.7027027027027027,
+        "0.4": 0.6486486486486486,
+        "0.5": 0.5945945945945946,
+        "0.6": 0.4324324324324324,
+        "0.7": 0.3243243243243243
+      },
+      "per_class": {
+        "H": {
+          "precision": 0.9210110584518167,
+          "recall": 0.8439490445859873,
+          "f1": 0.8807977035806014,
+          "support": 3454
+        },
+        "A": {
+          "precision": 0.810074880871341,
+          "recall": 0.9235545207605743,
+          "f1": 0.8631006346328196,
+          "support": 2577
+        },
+        "D": {
+          "precision": 0.9277022190408017,
+          "recall": 0.8822328114363512,
+          "f1": 0.9043963712491276,
+          "support": 1469
+        }
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead075.csv"
+    },
+    {
+      "name": "kdead085",
+      "changes": {
+        "k_dead": 0.085
+      },
+      "macro_f1": 0.863885192347469,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "per_class": {
+        "H": {
+          "precision": 0.9089491736825693,
+          "recall": 0.8439490445859873,
+          "f1": 0.8752439573637592,
+          "support": 3454
+        },
+        "A": {
+          "precision": 0.7753174861608596,
+          "recall": 0.923942568878541,
+          "f1": 0.8431303116147308,
+          "support": 2577
+        },
+        "D": {
+          "precision": 0.9615384615384616,
+          "recall": 0.7998638529611981,
+          "f1": 0.8732813080639168,
+          "support": 1469
+        }
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead085.csv"
+    },
+    {
+      "name": "kdead090",
+      "changes": {
+        "k_dead": 0.09
+      },
+      "macro_f1": 0.8625754427923579,
+      "spell_f1_mean": 0.5263157894736843,
+      "spell_f1_at_iou_05": 0.5789473684210527,
+      "pred_spells": 21,
+      "iou_f1": {
+        "0.3": 0.6842105263157895,
+        "0.4": 0.6315789473684211,
+        "0.5": 0.5789473684210527,
+        "0.6": 0.42105263157894735,
+        "0.7": 0.31578947368421056
+      },
+      "per_class": {
+        "H": {
+          "precision": 0.9080996884735203,
+          "recall": 0.8439490445859873,
+          "f1": 0.8748499399759905,
+          "support": 3454
+        },
+        "A": {
+          "precision": 0.7743089430894309,
+          "recall": 0.923942568878541,
+          "f1": 0.8425336164189667,
+          "support": 2577
+        },
+        "D": {
+          "precision": 0.9613168724279836,
+          "recall": 0.7950987066031314,
+          "f1": 0.8703427719821163,
+          "support": 1469
+        }
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead090.csv"
+    },
+    {
+      "name": "kdead060_confirm02",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 2
+      },
+      "macro_f1": 0.8895465259765493,
+      "spell_f1_mean": 0.5444444444444445,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.3888888888888889,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm02.csv"
+    },
+    {
+      "name": "kdead060_confirm03",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 3
+      },
+      "macro_f1": 0.8895513467183035,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm03.csv"
+    },
+    {
+      "name": "kdead060_confirm05",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5
+      },
+      "macro_f1": 0.8874180205987843,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05.csv"
+    },
+    {
+      "name": "kdead060_confirm06",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 6
+      },
+      "macro_f1": 0.8873094027592915,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm06.csv"
+    },
+    {
+      "name": "kdead055",
+      "changes": {
+        "k_dead": 0.055
+      },
+      "macro_f1": 0.8892175190110502,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead055.csv"
+    },
+    {
+      "name": "kdead058",
+      "changes": {
+        "k_dead": 0.058
+      },
+      "macro_f1": 0.8891017318095761,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead058.csv"
+    },
+    {
+      "name": "kdead062",
+      "changes": {
+        "k_dead": 0.062
+      },
+      "macro_f1": 0.8889304507316179,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead062.csv"
+    },
+    {
+      "name": "kdead065",
+      "changes": {
+        "k_dead": 0.065
+      },
+      "macro_f1": 0.8887613420967755,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead065.csv"
+    },
+    {
+      "name": "kdead060_confirm07",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 7
+      },
+      "macro_f1": 0.8867562906450109,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm07.csv"
+    },
+    {
+      "name": "kdead060_confirm08",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 8
+      },
+      "macro_f1": 0.8861981290496463,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm08.csv"
+    },
+    {
+      "name": "kdead060_confirm05_frac55",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "team_change_confirm_fraction": 0.55
+      },
+      "macro_f1": 0.888998262491647,
+      "spell_f1_mean": 0.5555555555555556,
+      "spell_f1_at_iou_05": 0.6111111111111113,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6111111111111113,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 11,
+        "n_spurious": 8,
+        "n_missed": 6
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_frac55.csv"
+    },
+    {
+      "name": "kdead060_confirm05_frac75",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "team_change_confirm_fraction": 0.75
+      },
+      "macro_f1": 0.8874180205987843,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_frac75.csv"
+    },
+    {
+      "name": "kdead060_confirm05_kteam10",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.0
+      },
+      "macro_f1": 0.894622314473848,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "iou05": {
+        "n_matched": 12,
+        "n_spurious": 7,
+        "n_missed": 5
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_kteam10.csv"
+    },
+    {
+      "name": "kdead060_confirm05_kteam080",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 0.8
+      },
+      "macro_f1": 0.8798647440712495,
+      "spell_f1_mean": 0.5058823529411764,
+      "spell_f1_at_iou_05": 0.5882352941176471,
+      "pred_spells": 17,
+      "iou_f1": {
+        "0.3": 0.6470588235294118,
+        "0.4": 0.5882352941176471,
+        "0.5": 0.5882352941176471,
+        "0.6": 0.4117647058823529,
+        "0.7": 0.29411764705882354
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_kteam080.csv"
+    },
+    {
+      "name": "kdead060_confirm05_kteam090",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 0.9
+      },
+      "macro_f1": 0.8899970460770144,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_kteam090.csv"
+    },
+    {
+      "name": "kdead060_confirm05_kteam110",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.1
+      },
+      "macro_f1": 0.8953675551068186,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_kteam110.csv"
+    },
+    {
+      "name": "kdead060_confirm05_kteam120",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.2
+      },
+      "macro_f1": 0.8871951181749752,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_kdead060_confirm05_kteam120.csv"
+    },
+    {
+      "name": "fine_kteam105",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.05
+      },
+      "macro_f1": 0.89478870008307,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_fine_kteam105.csv"
+    },
+    {
+      "name": "fine_kteam115",
+      "changes": {
+        "k_dead": 0.06,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.15
+      },
+      "macro_f1": 0.8956476845373157,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_fine_kteam115.csv"
+    },
+    {
+      "name": "fine_kdead055",
+      "changes": {
+        "k_dead": 0.055,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.1
+      },
+      "macro_f1": 0.891288286485568,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_fine_kdead055.csv"
+    },
+    {
+      "name": "fine_kdead065",
+      "changes": {
+        "k_dead": 0.065,
+        "team_change_confirm_frames": 5,
+        "k_team": 1.1
+      },
+      "macro_f1": 0.8952048853152558,
+      "spell_f1_mean": 0.5666666666666667,
+      "spell_f1_at_iou_05": 0.6666666666666667,
+      "pred_spells": 19,
+      "iou_f1": {
+        "0.3": 0.7222222222222222,
+        "0.4": 0.6666666666666667,
+        "0.5": 0.6666666666666667,
+        "0.6": 0.4444444444444444,
+        "0.7": 0.33333333333333337
+      },
+      "csv": "evaluation/results/gabri_iter2_fine_kdead065.csv"
+    }
+  ],
+  "caveat": "Exploratory tuning on the public window; not an independent generalization estimate.",
+  "selected": {
+    "params": {
+      "team_change_confirm_frames": 5,
+      "k_dead": 0.06,
+      "k_team": 1.15
+    },
+    "macro_f1": 0.8956476845373157,
+    "spell_f1_mean": 0.5666666666666667,
+    "spell_f1_iou_05": 0.6666666666666667,
+    "pred_spells": 19,
+    "gt_spells": 17,
+    "bootstrap_5_95": [
+      0.41111111111111115,
+      0.711111111111111
+    ]
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "ground_truth": "BAR-ATH public annotated window (7500 frames)",
+  "base": {
+    "macro_f1": 0.8418078844170179,
+    "spell_f1_mean": 0.4923076923076922,
+    "spell_f1_at_iou_05": 0.5641025641025642,
+    "pred_spells": 22
+  },
+  "method": "one-factor-at-a-time around active params; all other values fixed",
+  "variants": [
+    {
+      "name": "confirm06",
+      "changes": {
+        "params": {
+          "team_change_confirm_frames": 6
+        }
+      },
+      "macro_f1": 0.8435403012743262,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_confirm06.csv"
+    },
+    {
+      "name": "confirm08",
+      "changes": {
+        "params": {
+          "team_change_confirm_frames": 8
+        }
+      },
+      "macro_f1": 0.8424575407385085,
+      "spell_f1_mean": 0.5025641025641024,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_confirm08.csv"
+    },
+    {
+      "name": "confirm12",
+      "changes": {
+        "params": {
+          "team_change_confirm_frames": 12
+        }
+      },
+      "macro_f1": 0.8412694363015065,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_confirm12.csv"
+    },
+    {
+      "name": "confirm15",
+      "changes": {
+        "params": {
+          "team_change_confirm_frames": 15
+        }
+      },
+      "macro_f1": 0.8417256905150751,
+      "spell_f1_mean": 0.482051282051282,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_confirm15.csv"
+    },
+    {
+      "name": "confirm20",
+      "changes": {
+        "params": {
+          "team_change_confirm_frames": 20
+        }
+      },
+      "macro_f1": 0.8351059958618267,
+      "spell_f1_mean": 0.46486486486486484,
+      "spell_f1_at_iou_05": 0.5405405405405405,
+      "pred_spells": 20,
+      "gt_spells": 17,
+      "matched_iou_05": 10,
+      "spurious_iou_05": 10,
+      "missed_iou_05": 7,
+      "csv": "evaluation/results/gabri_sweep_confirm20.csv"
+    },
+    {
+      "name": "fraction55",
+      "changes": {
+        "params": {
+          "team_change_confirm_fraction": 0.55
+        }
+      },
+      "macro_f1": 0.8421356204197726,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_fraction55.csv"
+    },
+    {
+      "name": "fraction75",
+      "changes": {
+        "params": {
+          "team_change_confirm_fraction": 0.75
+        }
+      },
+      "macro_f1": 0.8414801246716413,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_fraction75.csv"
+    },
+    {
+      "name": "minpos15",
+      "changes": {
+        "decode": {
+          "min_pos": 15
+        }
+      },
+      "macro_f1": 0.8418078844170179,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_minpos15.csv"
+    },
+    {
+      "name": "minpos25",
+      "changes": {
+        "decode": {
+          "min_pos": 25
+        }
+      },
+      "macro_f1": 0.8418078844170179,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_minpos25.csv"
+    },
+    {
+      "name": "minpos30",
+      "changes": {
+        "decode": {
+          "min_pos": 30
+        }
+      },
+      "macro_f1": 0.8418078844170179,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_minpos30.csv"
+    },
+    {
+      "name": "switchteam15",
+      "changes": {
+        "decode": {
+          "switch_team": 1.5
+        }
+      },
+      "macro_f1": 0.8410354440446492,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_switchteam15.csv"
+    },
+    {
+      "name": "switchteam30",
+      "changes": {
+        "decode": {
+          "switch_team": 3.0
+        }
+      },
+      "macro_f1": 0.8418078844170179,
+      "spell_f1_mean": 0.4923076923076922,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "gt_spells": 17,
+      "matched_iou_05": 11,
+      "spurious_iou_05": 11,
+      "missed_iou_05": 6,
+      "csv": "evaluation/results/gabri_sweep_switchteam30.csv"
+    },
+    {
+      "name": "confirm04",
+      "changes": {
+        "team_change_confirm_frames": 4
+      },
+      "macro_f1": 0.8452951273893419,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_sweep_confirm04.csv"
+    },
+    {
+      "name": "confirm05",
+      "changes": {
+        "team_change_confirm_frames": 5
+      },
+      "macro_f1": 0.8436457066360562,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_sweep_confirm05.csv"
+    },
+    {
+      "name": "confirm07",
+      "changes": {
+        "team_change_confirm_frames": 7
+      },
+      "macro_f1": 0.8430018045380386,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_sweep_confirm07.csv"
+    },
+    {
+      "name": "confirm06_fraction55",
+      "changes": {
+        "team_change_confirm_frames": 6,
+        "team_change_confirm_fraction": 0.55
+      },
+      "macro_f1": 0.8435403012743262,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_sweep_confirm06_fraction55.csv"
+    },
+    {
+      "name": "confirm06_fraction75",
+      "changes": {
+        "team_change_confirm_frames": 6,
+        "team_change_confirm_fraction": 0.75
+      },
+      "macro_f1": 0.8431071970599993,
+      "spell_f1_mean": 0.5128205128205128,
+      "spell_f1_at_iou_05": 0.5641025641025642,
+      "pred_spells": 22,
+      "iou_f1": {
+        "0.3": 0.6666666666666667,
+        "0.4": 0.6153846153846153,
+        "0.5": 0.5641025641025642,
+        "0.6": 0.41025641025641024,
+        "0.7": 0.30769230769230765
+      },
+      "csv": "evaluation/results/gabri_sweep_confirm06_fraction75.csv"
+    }
+  ],
+  "caveat": "Exploratory tuning on the public window; not an independent generalization estimate."
+}

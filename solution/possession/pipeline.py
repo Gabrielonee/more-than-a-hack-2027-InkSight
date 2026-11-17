@@ -88,7 +88,12 @@ def run(params=None, decode_cfg=None, use_tagging=True, verbose=True, required=N
         if verbose and sp_info:
             print("set pieces: segno del tag Team", sp_info["team_sign"],
                   "| accordo con il giocatore piu' vicino", sp_info["team_agreement"])
-    labels = decode.decode_match(ll, data.graded_blocks(), atd["n_frames"], decode_cfg)
+    switch_guard = emissions.team_switch_guard(f, params)
+    labels = decode.decode_match(ll, data.graded_blocks(), atd["n_frames"], decode_cfg,
+                                 team_switch_guard=switch_guard)
+    labels = decode.confirm_team_changes(labels, f.get("control_home", f["d_home"]),
+                                         f.get("control_away", f["d_away"]), params,
+                                         data.graded_blocks(), context=f)
     if verbose:
         g = data.graded_mask()
         u, c = np.unique(labels[g], return_counts=True)
